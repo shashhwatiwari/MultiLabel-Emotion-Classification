@@ -54,10 +54,16 @@ def preprocess_text(text):
 def load_goemotions_hf():
     """Load GoEmotions dataset from Hugging Face"""
     # Load the dataset
-    dataset = load_dataset("google-research-datasets/go_emotions", "raw")
+    dataset = load_dataset("go_emotions", "raw")
     
     # Get emotion labels
-    emotion_labels = dataset['train'].features['labels'].feature.names
+    emotion_labels = [
+        'admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring',
+        'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval',
+        'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief',
+        'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization',
+        'relief', 'remorse', 'sadness', 'surprise', 'neutral'
+    ]
     
     # Process the data
     def process_example(example):
