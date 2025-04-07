@@ -8,6 +8,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import re
+from datasets import load_dataset
 
 class EmotionDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_length=128):
@@ -50,14 +51,42 @@ def preprocess_text(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-def load_goemotions_data(file_path):
-    """Load and preprocess GoEmotions dataset"""
-    df = pd.read_csv(file_path)
-    texts = df['text'].apply(preprocess_text)
-    # Assuming emotions are in columns after 'text'
-    emotion_columns = [col for col in df.columns if col != 'text']
-    labels = df[emotion_columns].values
-    return texts, labels
+def load_goemotions_hf():
+    """Load GoEmotions dataset from Hugging Face"""
+    # Load the dataset
+    dataset = load_dataset("google-research-datasets/go_emotions", "raw")
+    
+    # Get emotion labels
+    emotion_labels = dataset['train'].features['labels'].feature.names
+    
+    # Process the data
+    def process_example(example):
+        # Convert labels to one-hot encoding
+        one_hot = np.zeros(len(emotion_labels))
+        for label in example['labels']:
+            one_hot[label] = 1
+        return {
+            'text': preprocess_text(example['text']),
+            'labels': one_hot
+        }
+    
+    # Process all splits
+    processed_dataset = dataset.map(process_example)
+    
+    # Convert to lists for easier handling
+    train_texts = processed_dataset['train']['text']
+    train_labels = processed_dataset['train']['labels']
+    val_texts = processed_dataset['validation']['text']
+    val_labels = processed_dataset['validation']['labels']
+    test_texts = processed_dataset['test']['text']
+    test_labels = processed_dataset['test']['labels']
+    
+    return {
+        'train': {'texts': train_texts, 'labels': train_labels},
+        'val': {'texts': val_texts, 'labels': val_labels},
+        'test': {'texts': test_texts, 'labels': test_labels},
+        'emotion_labels': emotion_labels
+    }
 
 def load_movie_reviews_data(file_path):
     """Load and preprocess movie reviews dataset"""
