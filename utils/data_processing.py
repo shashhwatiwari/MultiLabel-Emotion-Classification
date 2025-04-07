@@ -54,7 +54,7 @@ def preprocess_text(text):
 def load_goemotions_hf():
     """Load GoEmotions dataset from Hugging Face"""
     # Load the dataset
-    dataset = load_dataset("go_emotions", "raw")
+    dataset = load_dataset("go_emotions", "simplified")
     
     # Get emotion labels
     emotion_labels = [
@@ -67,13 +67,9 @@ def load_goemotions_hf():
     
     # Process the data
     def process_example(example):
-        # Convert labels to one-hot encoding
-        one_hot = np.zeros(len(emotion_labels))
-        for label in example['labels']:
-            one_hot[label] = 1
         return {
             'text': preprocess_text(example['text']),
-            'labels': one_hot
+            'labels': example['labels']
         }
     
     # Process all splits
