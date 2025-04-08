@@ -8,6 +8,7 @@ from transformers import AutoModelForSequenceClassification
 from torch.optim import AdamW
 from utils.data_processing import load_goemotions_hf, get_tokenizer, EmotionDataset
 from utils.evaluation import evaluate_model, print_metrics
+from tqdm import tqdm
 
 def predict_emotions(text, model, tokenizer, emotion_labels, device, threshold=0.5):
     """Predict emotions for a given text"""
@@ -85,8 +86,12 @@ def train_bert():
         print(f"\nEpoch {epoch + 1}/{num_epochs}")
         model.train()
         total_loss = 0
-
-        for batch in train_loader:
+        total_batches = len(train_loader)
+        
+        # Add progress bar
+        progress_bar = tqdm(train_loader, desc=f"Training Epoch {epoch + 1}")
+        
+        for batch_idx, batch in enumerate(progress_bar):
             # Move batch to device
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
@@ -94,7 +99,8 @@ def train_bert():
 
             # Forward pass
             outputs = model(input_ids, attention_mask=attention_mask)
-            loss = criterion(outputs.logits, labels)
+            logits = outputs.logits
+            loss = criterion(logits, labels)
 
             # Backward pass
             optimizer.zero_grad()
@@ -102,11 +108,20 @@ def train_bert():
             optimizer.step()
 
             total_loss += loss.item()
+            
+            # Update progress bar
+            progress_bar.set_postfix({
+                'loss': f'{loss.item():.4f}',
+                'avg_loss': f'{total_loss/(batch_idx+1):.4f}'
+            })
 
-        # Print training loss
-        print(f"Training Loss: {total_loss / len(train_loader):.4f}")
+        # Print epoch summary
+        avg_loss = total_loss / total_batches
+        print(f"\nEpoch {epoch + 1} Summary:")
+        print(f"Average Training Loss: {avg_loss:.4f}")
 
         # Evaluate on validation set
+        print("\nEvaluating on validation set...")
         val_metrics = evaluate_model(model, val_loader, device)
         print_metrics(val_metrics, prefix="Validation ")
 
