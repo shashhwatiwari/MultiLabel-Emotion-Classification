@@ -42,10 +42,11 @@ def evaluate_model(model, data_loader, device, criterion=nn.BCEWithLogitsLoss())
             labels = batch['labels'].to(device)
             
             outputs = model(input_ids, attention_mask=attention_mask)
-            loss = criterion(outputs, labels)
+            logits = outputs.logits
+            loss = criterion(logits, labels)
             
             total_loss += loss.item()
-            all_predictions.append(outputs.sigmoid())
+            all_predictions.append(logits.sigmoid())
             all_labels.append(labels)
     
     # Concatenate all predictions and labels
