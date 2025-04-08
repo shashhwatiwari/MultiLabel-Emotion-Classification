@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils.data_processing import load_goemotions_hf, get_tokenizer
+from utils.data_processing import load_goemotions_hf, get_tokenizer, EmotionDataset
 from utils.evaluation import print_metrics
 import torch
 from torch.utils.data import DataLoader
