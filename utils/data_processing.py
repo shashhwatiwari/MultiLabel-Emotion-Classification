@@ -11,18 +11,23 @@ import re
 from datasets import load_dataset
 
 class EmotionDataset(Dataset):
-    def __init__(self, texts, labels, tokenizer, max_length=128):
+    def __init__(self, texts, labels, tokenizer, num_labels, max_length=128):
         self.texts = texts
-        self.labels = labels
+        self.labels = labels  # list of lists of label indices
         self.tokenizer = tokenizer
         self.max_length = max_length
+        self.num_labels = num_labels
 
     def __len__(self):
         return len(self.texts)
 
     def __getitem__(self, idx):
         text = str(self.texts[idx])
-        label = self.labels[idx]
+        label_indices = self.labels[idx]
+
+        # Convert to multi-hot vector
+        label_tensor = torch.zeros(self.num_labels)
+        label_tensor[label_indices] = 1.0
 
         encoding = self.tokenizer(
             text,
@@ -34,9 +39,9 @@ class EmotionDataset(Dataset):
         )
 
         return {
-            'input_ids': encoding['input_ids'].flatten(),
-            'attention_mask': encoding['attention_mask'].flatten(),
-            'labels': torch.tensor(label, dtype=torch.float)
+            'input_ids': encoding['input_ids'].squeeze(0),
+            'attention_mask': encoding['attention_mask'].squeeze(0),
+            'labels': label_tensor
         }
 
 def preprocess_text(text):
