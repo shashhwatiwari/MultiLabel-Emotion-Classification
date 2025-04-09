@@ -76,4 +76,60 @@ def save_metrics(metrics, file_path):
     """Save metrics to a file"""
     with open(file_path, 'w') as f:
         for key, value in metrics.items():
-            f.write(f"{key}: {value}\n") 
+            f.write(f"{key}: {value}\n")
+
+def calculate_metrics_single_label(y_true, y_pred):
+    """Calculate metrics for single-label classification"""
+    metrics = {}
+    
+    # Convert to numpy arrays if they're tensors
+    if isinstance(y_true, torch.Tensor):
+        y_true = y_true.cpu().numpy()
+    if isinstance(y_pred, torch.Tensor):
+        y_pred = y_pred.cpu().numpy()
+    
+    # Get predicted class (argmax)
+    y_pred_classes = np.argmax(y_pred, axis=1)
+    y_true_classes = np.argmax(y_true, axis=1)
+    
+    # Calculate metrics
+    metrics['f1_micro'] = f1_score(y_true_classes, y_pred_classes, average='micro')
+    metrics['f1_macro'] = f1_score(y_true_classes, y_pred_classes, average='macro')
+    metrics['precision_micro'] = precision_score(y_true_classes, y_pred_classes, average='micro')
+    metrics['precision_macro'] = precision_score(y_true_classes, y_pred_classes, average='macro')
+    metrics['recall_micro'] = recall_score(y_true_classes, y_pred_classes, average='micro')
+    metrics['recall_macro'] = recall_score(y_true_classes, y_pred_classes, average='macro')
+    metrics['accuracy'] = np.mean(y_true_classes == y_pred_classes)
+    
+    return metrics
+
+def evaluate_model_single_label(model, data_loader, device, criterion=nn.CrossEntropyLoss()):
+    """Evaluate model on a data loader for single-label classification"""
+    model.eval()
+    total_loss = 0
+    all_predictions = []
+    all_labels = []
+    
+    with torch.no_grad():
+        for batch in data_loader:
+            input_ids = batch['input_ids'].to(device)
+            attention_mask = batch['attention_mask'].to(device)
+            labels = batch['labels'].to(device)
+            
+            outputs = model(input_ids, attention_mask=attention_mask)
+            logits = outputs.logits
+            loss = criterion(logits, labels)
+            
+            total_loss += loss.item()
+            all_predictions.append(logits)
+            all_labels.append(labels)
+    
+    # Concatenate all predictions and labels
+    all_predictions = torch.cat(all_predictions, dim=0)
+    all_labels = torch.cat(all_labels, dim=0)
+    
+    # Calculate metrics
+    metrics = calculate_metrics_single_label(all_labels, all_predictions)
+    metrics['loss'] = total_loss / len(data_loader)
+    
+    return metrics 
