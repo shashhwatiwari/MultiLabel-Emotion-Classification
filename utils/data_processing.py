@@ -44,16 +44,76 @@ class EmotionDataset(Dataset):
             'labels': label_tensor
         }
 
+class TwitterDataset(Dataset):
+    def __init__(self, texts, labels, tokenizer, num_labels, max_length=128):
+        self.texts = texts
+        self.labels = labels
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.num_labels = num_labels
+        self.label_map = {
+            'neutral': 0,
+            'worry': 1,
+            'sadness': 2,
+            'enthusiasm': 3,
+            # Add other labels as needed
+        }
+
+    def __len__(self):
+        return len(self.texts)
+
+    def __getitem__(self, idx):
+        text = str(self.texts[idx])
+        label = self.labels[idx]
+        
+        # Convert label to index
+        label_idx = self.label_map.get(label, 0)  # Default to neutral if label not found
+        
+        # Create one-hot vector
+        label_tensor = torch.zeros(self.num_labels)
+        label_tensor[label_idx] = 1.0
+
+        encoding = self.tokenizer(
+            text,
+            add_special_tokens=True,
+            max_length=self.max_length,
+            padding='max_length',
+            truncation=True,
+            return_tensors='pt'
+        )
+
+        return {
+            'input_ids': encoding['input_ids'].squeeze(0),
+            'attention_mask': encoding['attention_mask'].squeeze(0),
+            'labels': label_tensor
+        }
+
 def preprocess_text(text):
     """Basic text preprocessing"""
     # Convert to lowercase
     text = text.lower()
+    
     # Remove URLs
     text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
-    # Remove special characters and numbers
-    text = re.sub(r'[^a-zA-Z\s]', '', text)
+    
+    # Remove mentions (@username)
+    text = re.sub(r'@\w+', '', text)
+    
+    # Remove hashtags but keep the word
+    text = re.sub(r'#(\w+)', r'\1', text)
+    
+    # Remove RT (retweet indicators)
+    text = re.sub(r'^rt\s+', '', text)
+    
+    # Remove special characters but keep basic punctuation
+    text = re.sub(r'[^\w\s.,!?]', '', text)
+    
+    # Remove numbers (optional, uncomment if needed)
+    # text = re.sub(r'\d+', '', text)
+    
     # Remove extra whitespace
     text = re.sub(r'\s+', ' ', text).strip()
+    
     return text
 
 def load_goemotions_hf():
