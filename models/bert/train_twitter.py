@@ -138,6 +138,9 @@ def predict_sentiment(text, model, tokenizer, sentiment_labels, device, threshol
     return predicted_sentiments, probabilities
 
 if __name__ == "__main__":
+    # Set device
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
     # Train the model
     model, tokenizer, sentiment_labels = train_bert_twitter()
     
