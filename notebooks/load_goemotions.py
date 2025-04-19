@@ -2,7 +2,6 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils.data_processing import load_goemotions_hf, get_tokenizer, EmotionDataset
 from utils.evaluation import print_metrics
 import torch
 from torch.utils.data import DataLoader
@@ -26,11 +25,6 @@ def main():
     for i in range(3):
         print(f"\nExample {i+1}:")
         print(f"Text: {dataset['train']['texts'][i]}")
-        # Get the indices of emotions for this example
-        emotion_indices = dataset['train']['labels'][i]
-        # Convert indices to emotion names
-        emotions = [dataset['emotion_labels'][idx] for idx in emotion_indices]
-        print("Labels:", emotions)
     
     # Example: Create data loaders for BERT
     print("\nCreating data loaders for BERT...")
@@ -40,8 +34,6 @@ def main():
     train_dataset = EmotionDataset(
         dataset['train']['texts'],
         dataset['train']['labels'],
-        tokenizer,
-        num_labels=len(dataset['emotion_labels'])
     )
     
     # Create data loader
