@@ -1,13 +1,15 @@
 from datasets import load_dataset
 import pandas as pd
+import joblib
+import os
+import zipfile
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
-# 1) LOAD THE DATASET
-# -------------------
+
 # This fetches three splits: train, validation, test.
 dataset = load_dataset('dair-ai/emotion')
 
@@ -22,8 +24,7 @@ df_train_full = pd.concat([df_train, df_val], ignore_index=True)
 X_train, y_train = df_train_full['text'], df_train_full['label']
 X_test,  y_test  = df_test['text'],         df_test['label']
 
-# 2) VECTORIZE TEXT WITH TF–IDF
-# -----------------------------
+# Vectorize the text data using TF-IDF
 vectorizer = TfidfVectorizer(
     stop_words='english',   # remove common English stop words
     max_features=5000,      # only keep the top 5,000 tokens by term frequency
@@ -36,8 +37,7 @@ vectorizer = TfidfVectorizer(
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec  = vectorizer.transform(X_test)
 
-# 3) INITIALIZE AND TRAIN LOGISTIC REGRESSION
-# -------------------------------------------
+# Initialize and train the Logistic Regression model
 model = LogisticRegression(
     penalty='l2',            # regularization norm ('l1', 'l2', 'elasticnet', or 'none')
     C=1.0,                   # inverse of regularization strength; smaller → stronger regularization
@@ -50,15 +50,13 @@ model = LogisticRegression(
 )
 model.fit(X_train_vec, y_train)
 
-# 4) EVALUATE ON THE TEST SET
-# ---------------------------
+# Evaluate the model on the test set
 label_names = dataset['train'].features['label'].names
 y_pred = model.predict(X_test_vec)
 print(classification_report(y_test, y_pred, target_names=label_names))
 
 
-# 5) INTERACTIVE PREDICTION FUNCTION
-# ----------------------------------
+# Interactive prediction function
 def predict_emotion(text: str) -> None:
     """
     Transforms the input text with the same TF-IDF vectorizer
@@ -68,11 +66,28 @@ def predict_emotion(text: str) -> None:
     pred_label = model.predict(vec)[0]
     print(f"Predicted   : {label_names[pred_label]}")
 
-# Example usage:
-# --------------
-# >>> predict_emotion("I am absolutely thrilled by this news!")
-# Input text  : 'I am absolutely thrilled by this news!'
-# Predicted   : joy
+def export_and_zip(model, vectorizer,
+                   export_dir: str = 'export',
+                   zip_filename: str = 'model_package.zip') -> None:
+    
+    os.makedirs(export_dir, exist_ok=True)
+    model_path = os.path.join(export_dir, 'emotion_clf.joblib')
+    vec_path   = os.path.join(export_dir, 'tfidf_vectorizer.joblib')
+
+    # Serialize to disk
+    joblib.dump(model, model_path)
+    joblib.dump(vectorizer, vec_path)
+
+    # Create ZIP archive
+    with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as z:
+        z.write(model_path, arcname='emotion_clf.joblib')
+        z.write(vec_path,   arcname='tfidf_vectorizer.joblib')
+
+    print(f"Exported and zipped to {zip_filename}")
+
+#export_and_zip(model, vectorizer)
+
+# Interactive loop for user input
 if __name__ == "__main__":
     print("\nEnter a sentence to classify its emotions (type 'quit' to exit):")
     while True:
