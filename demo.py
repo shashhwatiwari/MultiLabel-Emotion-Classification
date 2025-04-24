@@ -29,15 +29,15 @@ sys.modules["keras.src.preprocessing"]          = kp_root
 sys.modules["keras.src.preprocessing.sequence"] = kp_seq
 sys.modules["keras.src.preprocessing.text"]     = kp_txt
 
-# 0) Device
+# Device setup
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# 1) Load test split & label names
+# Load test split & label names
 test_ds    = load_dataset("go_emotions", split="test")
 label_names = test_ds.features["labels"].feature.names
 N_CLASSES   = len(label_names)
 
-# 2) Model registry: add your HF repos here
+# Model registry: add your HF repos here
 MODEL_REGISTRY = {
     # — Transformers —
     "DistilBERT": {
@@ -89,7 +89,7 @@ MODEL_REGISTRY = {
     }
 }
 
-# 3) Load all models/tokenizers into memory
+# Load all models and tokenizers into memory
 loaded = {}
 
 for name, info in MODEL_REGISTRY.items():
@@ -133,7 +133,7 @@ def evaluate(text, model_name):
     try:
         entry = loaded[model_name]
 
-        # Set threshold based on model type
+        # Set threshold based on model
         model_type = MODEL_REGISTRY[model_name]["type"]
         if model_type == "transformer":
             threshold = 0.3
@@ -142,7 +142,7 @@ def evaluate(text, model_name):
         elif model_type == "keras_cnn":
             threshold = 0.3
         else:
-            threshold = 0.3  # default fallback
+            threshold = 0.3  # default
 
         # — Transformer branch —
         if MODEL_REGISTRY[model_name]["type"] == "transformer":
@@ -157,7 +157,7 @@ def evaluate(text, model_name):
             with torch.no_grad():
                 probs = torch.sigmoid(mdl(**enc).logits)[0].cpu().numpy()
 
-        # — Sklearn branch: JUST raw probs, no inverse_transform here —
+        # — Sklearn branch —
         elif MODEL_REGISTRY[model_name]["type"] == "sklearn":
             vect = entry["vectorizer"]
             clf  = entry["classifier"]
@@ -180,7 +180,6 @@ def evaluate(text, model_name):
         else:
             raise ValueError(f"Unknown model type for {model_name}")
 
-        # — now ONE consistent threshold→labels step for ALL models —
         pred_vec = (probs > threshold).astype(int)  # shape (N_CLASSES,)
         labels   = [label_names[i] for i, flag in enumerate(pred_vec) if flag == 1]
 
@@ -190,7 +189,7 @@ def evaluate(text, model_name):
         tb = traceback.format_exc()
         return f"❌ Error:\n{tb}", plt.figure()
 
-# 5) Gradio demo
+# Gradio demo
 import traceback
 
 def predict_fn(text, model_name):
@@ -206,7 +205,7 @@ def predict_fn(text, model_name):
         elif model_type == "keras_cnn":
             threshold = 0.3
         else:
-            threshold = 0.3  # default fallback
+            threshold = 0.3  # default
 
         # — Transformer branch —
         if MODEL_REGISTRY[model_name]["type"] == "transformer":
@@ -271,8 +270,7 @@ iface = gr.Interface(
         gr.Radio(list(MODEL_REGISTRY.keys()), label="Model")
     ],
     outputs=[gr.Textbox(label="Emotions"), gr.Plot()],
-    title="Universal Emotion Detection Demo",
-    # description="This demo uses fixed thresholds based on model type: transformer (0.3), sklearn (0.6), keras_cnn (0.4)"
+    title="Universal Emotion Detection Demo"
 )
 
 # Predefined test inputs
@@ -280,7 +278,7 @@ test_inputs = [
     "I love this product! It's amazing.",
     "I'm so sad and disappointed."
 ]
-# Run the demo for every model with predefined test inputs
+# Run the demo
 for model_name in MODEL_REGISTRY.keys():
     print(f"Testing model: {model_name} ===============================================================")
     for text in test_inputs:
