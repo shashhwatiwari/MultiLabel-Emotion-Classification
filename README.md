@@ -11,7 +11,6 @@ This project aims to detect and analyze emotions in text data from different sou
 ```
 .
 ├── data_scripts/
-│   ├── __pycache__/
 │   ├── data_processing_test.py
 │   ├── data_processing.py
 │   ├── Emotion_DAIR_Analysis.ipynb
@@ -105,6 +104,6 @@ This allows for quick testing of emotion detection on sample text inputs.
 
 ## Contributors
 
-Sanshrit Bakshi
-Shashwat Tiwari
+Sanshrit Bakshi\
+Shashwat Tiwari\
 Sanidhya Maharia
