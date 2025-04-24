@@ -99,6 +99,8 @@ A demonstration script is available:
 ```bash
 python demo.py
 ```
+The Demo UI to test all trained models against custom text inputs is deployed and can be leveraged at:
+[Emotion Detection Ui](https://huggingface.co/spaces/BakshiSan/CS6120_Demo)
 
 This allows for quick testing of emotion detection on sample text inputs.
 
