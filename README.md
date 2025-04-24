@@ -1,86 +1,80 @@
-# Multi-Label Emotion Classification
+# Emotion Analysis Models
 
-This project compares the performance of different NLP models (SVM, Logistic Regression, CNN, BERT, RoBERTa) on multi-label emotion classification tasks. The study focuses on understanding how model performance varies based on the training data distribution.
+This repository contains implementation of various machine learning and deep learning models for emotion analysis on multiple datasets. The project focuses on comparing different approaches for emotion detection and classification.
 
 ## Project Structure
 
 ```
-├── data/
-│   ├── raw/                 # Raw datasets
-│   ├── processed/           # Processed datasets
-│   └── splits/              # Train/val/test splits
+├── data_scripts/
+│   ├── data_processing.py       # Main data processing utilities
+│   ├── data_processing_test.py  # Tests for data processing functions
+│   ├── Emotion_DAIR_Analysis.ipynb  # Analysis of DAIR emotion dataset
+│   └── GoEmotions_Analysis.ipynb    # Analysis of Google's GoEmotions dataset
 ├── models/
-│   ├── svm/                 # SVM implementation
-│   ├── logistic_regression/ # Logistic Regression implementation
-│   ├── cnn/                 # CNN implementation
-│   ├── bert/                # BERT implementation
-│   └── roberta/             # RoBERTa implementation
-├── utils/
-│   ├── data_processing.py   # Data preprocessing utilities
-│   ├── evaluation.py        # Evaluation metrics
-│   └── visualization.py     # Visualization utilities
-├── experiments/
-│   └── results/             # Experiment results and analysis
-└── notebooks/
-    └── analysis.ipynb       # Analysis and visualization notebooks
+│   ├── bert/                    # BERT model implementations
+│   ├── cnn/
+│   │   ├── CNN_geoemotions.ipynb    # CNN model for GoEmotions dataset
+│   │   └── CNN_twitter.ipynb        # CNN model for Twitter dataset
+│   ├── logistic_regression/
+│   │   ├── LR_geoemotions.py        # Logistic Regression for GoEmotions
+│   │   └── LR_twitter.py            # Logistic Regression for Twitter
+│   ├── roberta/
+│   │   ├── RoBERTA_GoEmotions.ipynb # RoBERTa model for GoEmotions
+│   │   └── roBERTa_Twitter-2.ipynb  # RoBERTa model for Twitter (v2)
+│   └── svm/
+│       ├── svm_geomotion.py         # SVM for GoEmotions
+│       └── svm_twitter.py           # SVM for Twitter
+├── model_test.py                # Model evaluation and testing script
+├── .gitignore                   # Git ignore file
+├── README.md                    # This file
+└── requirements.txt             # Project dependencies
 ```
 
 ## Datasets
 
-1. GoEmotions (Training)
-   - Multi-label emotion classification dataset
-   - 27 emotion categories
-   - Reddit comments
+This project works with multiple emotion datasets:
 
-2. Movie Reviews (Training)
-   - Multi-label sentiment analysis
-   - Movie review data
+- **GoEmotions**: Google's dataset containing 58k Reddit comments labeled with 27 emotions
+- **Twitter**: Emotion-labeled tweets dataset
+- **DAIR**: Additional emotion analysis dataset
 
-3. Twitter Chats (Testing)
-   - Multi-label emotion classification
-   - Social media conversations
+## Models Implemented
 
-## Models
+The repository contains implementations of various models for emotion classification:
 
-- Support Vector Machine (SVM)
-- Logistic Regression
-- Convolutional Neural Network (CNN)
-- BERT
-- RoBERTa
+- **CNN**: Convolutional Neural Networks for text classification
+- **BERT**: Bidirectional Encoder Representations from Transformers
+- **RoBERTa**: Robustly Optimized BERT Pretraining Approach
+- **SVM**: Support Vector Machines
+- **Logistic Regression**: Traditional machine learning approach
+
+## Getting Started
+
+1. Clone the repository
+2. Install requirements:
+   ```
+   pip install -r requirements.txt
+   ```
+3. Run data processing scripts to prepare datasets:
+   ```
+   python data_scripts/data_processing.py
+   ```
+4. Train models using either Python scripts or Jupyter notebooks in the respective model directories
+
+## Usage
+
+Each model directory contains either Python scripts or Jupyter notebooks that can be used to train and evaluate models on different datasets.
+
+For example, to train a CNN model on the GoEmotions dataset:
+1. Open `models/cnn/CNN_geoemotions.ipynb` in Jupyter
+2. Follow the instructions in the notebook to load data, train the model, and evaluate results
 
 ## Requirements
 
-- Python 3.8+
-- PyTorch
-- Transformers
-- Scikit-learn
-- Pandas
-- NumPy
-- Matplotlib/Seaborn
+See `requirements.txt` for a full list of dependencies.
 
-## Setup
+## Contributors
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Download datasets
-4. Run preprocessing scripts
-5. Train and evaluate models
-
-## Evaluation Metrics
-
-- F1 Score (micro and macro)
-- Precision
-- Recall
-- Hamming Loss
-- Jaccard Similarity Score
-
-## Results
-
-Results will be stored in the `experiments/results` directory, including:
-- Model performance metrics
-- Training curves
-- Confusion matrices
-- Cross-dataset analysis
+Sanshrit Bakshi
+Shashwat Tiwari
+Sanidhya Maharia
