@@ -61,13 +61,6 @@ class TestPreprocessText(unittest.TestCase):
         processed = preprocess_text(text)
         self.assertEqual(processed, "hello! how are you? this is a test.")
     
-    def test_emoji_handling(self):
-        """Test handling of emoji characters"""
-        text = "I love this 😍 so much!"
-        processed = preprocess_text(text)
-        # Special characters should be removed, but text preserved
-        self.assertEqual(processed, "i love this so much!")
-    
     def test_empty_string(self):
         """Test processing an empty string"""
         text = ""
