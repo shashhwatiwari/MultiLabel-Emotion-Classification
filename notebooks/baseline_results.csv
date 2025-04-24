@@ -1,2 +1,0 @@
-eval_loss,eval_model_preparation_time,eval_f1_micro,eval_subset_accuracy,eval_runtime,eval_samples_per_second,eval_steps_per_second,num_train_epochs,per_device_train_batch_size,learning_rate
-0.08537615835666656,0.0011,0.5727094424208462,0.4588170259812051,44.1281,122.983,7.705,3.0,8,5e-05

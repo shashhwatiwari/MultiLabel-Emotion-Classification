@@ -9,7 +9,7 @@ from torch.optim import AdamW
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-from utils.data_processing import load_twitter_data, get_tokenizer, TwitterDataset, preprocess_text
+from data.data_processing import load_twitter_data, get_tokenizer, TwitterDataset, preprocess_text
 from utils.evaluation import evaluate_model_single_label, print_metrics
 
 def train_bert_twitter():
