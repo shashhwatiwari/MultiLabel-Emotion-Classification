@@ -237,10 +237,6 @@ def save_model(model, label_names, model_dir="model"):
 
 
 def load_model(model_dir="model", zip_file=None):
-    """
-    Load the trained model and associated components.
-    If zip_file is provided, extract model from the zip file first.
-    """
     # If zip file is provided, extract it first
     if zip_file and os.path.exists(zip_file):
         import zipfile

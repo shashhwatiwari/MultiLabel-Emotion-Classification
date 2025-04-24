@@ -47,11 +47,6 @@ def load_and_preprocess():
 
 
 def train_svm(X_train, y_train):
-    """
-    Constructs a One‑vs‑Rest pipeline where each binary task
-    first oversamples its positive/negative splits, then fits
-    a LinearSVC with class_weight='balanced'.
-    """
     # Inner pipeline for *each* binary problem:
     inner = ImbPipeline([
         ("oversample", RandomOverSampler(random_state=42)),

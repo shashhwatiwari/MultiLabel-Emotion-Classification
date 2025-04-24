@@ -2,7 +2,6 @@ import unittest
 import re
 
 # Import the preprocess_text function
-# Assuming the original code is in a file named emotion_datasets.py
 from data_processing import preprocess_text
 
 class TestPreprocessText(unittest.TestCase):
